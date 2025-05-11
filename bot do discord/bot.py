@@ -11,23 +11,29 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 
 @bot.listen()
 async def on_message(event: hikari.GuildMessageCreateEvent):
+    print(f"Mensagem recebida: {event.message.content}")  # Log para depuração
+
     if event.is_bot:
         return
-    
-    # Verificar se o bot foi mencionado 
+
+    # Verificar se o bot foi mencionado
     if bot.get_me().id in event.message.user_mentions_ids:
         question = event.message.content.replace(f"<@{bot.get_me().id}>", "").strip()
         if question:
-            response = openai.ChatCompletion.create(
-                model="gpt-3.5-turbo",
-                messages=[{"role": "user", "content": question}]
-            )
-            answer = response["choices"][0]["message"]["content"]
-            await event.message.respond(f"{answer}")
+            try:
+                response = await openai.ChatCompletion.acreate(
+                    model="gpt-3.5-turbo",
+                    messages=[{"role": "user", "content": question}]
+                )
+                answer = response.choices[0].message.content
+                await event.message.respond(f"{answer}")
+            except Exception as e:
+                print(f"Erro ao chamar a API do OpenAI: {e}")
+                await event.message.respond("Desculpe, ocorreu um erro ao processar sua solicitação.")
 
     # Verificar comandos de rolagem de dados
     content = event.message.content.lower()
-    if content.startswith("!roll"):
+    if content.startswith("!rolar"):
         try:
             dice_type = content.split(" ")[1]
             if dice_type in ["d100", "d20", "d10", "d8", "d6", "d4"]:
@@ -39,5 +45,5 @@ async def on_message(event: hikari.GuildMessageCreateEvent):
         except IndexError:
             await event.message.respond("Po mano, especifica o tipo do dado! Exemplo: !roll d20")
 
-# Run the bot
+# Run Bot
 bot.run()
