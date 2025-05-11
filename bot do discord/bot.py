@@ -11,7 +11,8 @@ api_token = os.getenv("GROQCLOUD_API_TOKEN")
 if not api_token:
     raise ValueError("O token da API do GroqCloud não foi encontrado. Certifique-se de definir a variável de ambiente 'GROQCLOUD_API_TOKEN'.")
 
-client = Groq(api_token=api_token)
+client = Groq()
+client.set_api_token(api_token)
 
 @bot.listen()
 async def on_message(event: hikari.GuildMessageCreateEvent):
