@@ -25,8 +25,8 @@ async def on_message(event: hikari.GuildMessageCreateEvent):
                     model="gpt-3.5-turbo",
                     messages=[{"role": "user", "content": question}]
                 )
-                answer = response.choices[0].message.content
-                await event.message.respond(f"{answer}")
+                answer = response["choices"][0]["message"]["content"]
+                await event.message.respond(f"🤖 {answer}")
             except Exception as e:
                 print(f"Erro ao chamar a API do OpenAI: {e}")
                 await event.message.respond("Desculpe, ocorreu um erro ao processar sua solicitação.")
@@ -45,5 +45,5 @@ async def on_message(event: hikari.GuildMessageCreateEvent):
         except IndexError:
             await event.message.respond("Po mano, especifica o tipo do dado! Exemplo: !roll d20")
 
-# Run Bot
+# Run the bot
 bot.run()
