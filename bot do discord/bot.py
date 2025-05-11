@@ -1,13 +1,13 @@
 import hikari
-import openai
 import random
 import os
+from openai import AsyncOpenAI
 
 # Hikari bot
 bot = hikari.GatewayBot(token=os.getenv("DISCORD_TOKEN"))
 
 # OpenAI API
-openai.api_key = os.getenv("OPENAI_API_KEY")
+client = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 @bot.listen()
 async def on_message(event: hikari.GuildMessageCreateEvent):
@@ -21,11 +21,11 @@ async def on_message(event: hikari.GuildMessageCreateEvent):
         question = event.message.content.replace(f"<@{bot.get_me().id}>", "").strip()
         if question:
             try:
-                response = await openai.ChatCompletion.acreate(
+                response = await client.chat.completions.create(
                     model="gpt-3.5-turbo",
                     messages=[{"role": "user", "content": question}]
                 )
-                answer = response["choices"][0]["message"]["content"]
+                answer = response.choices[0].message.content
                 await event.message.respond(f"🤖 {answer}")
             except Exception as e:
                 print(f"Erro ao chamar a API do OpenAI: {e}")
